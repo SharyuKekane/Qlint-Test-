@@ -4,13 +4,16 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
+import java.security.Security;
 import java.security.Signature;
+import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 
 public class Legacy {
 
     public KeyPairGenerator generateRSAKey() throws Exception {
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-        kpg.initialize(2048);
+        Security.addProvider(new BouncyCastlePQCProvider());
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("ML-KEM-768", "BCPQC");
+        kpg.generateKeyPair();
         return kpg;
     }
 
@@ -24,7 +27,7 @@ public class Legacy {
     }
 
     public MessageDigest hashMD5() throws Exception {
-        return MessageDigest.getInstance("MD5");
+        return MessageDigest.getInstance("SHA3-512");
     }
 
     public MessageDigest hashSHA1() throws Exception {
@@ -32,12 +35,15 @@ public class Legacy {
     }
 
     public Cipher encryptDES() throws Exception {
-        return Cipher.getInstance("DES/ECB/PKCS5Padding");
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(256);
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+        return cipher;
     }
 
     public KeyGenerator generateAES128Key() throws Exception {
         KeyGenerator kg = KeyGenerator.getInstance("AES");
-        kg.init(128);
+        kg.init(256);
         return kg;
     }
 }
